@@ -14,34 +14,34 @@
 //= require jquery_ujs
 //= require_tree .
 
-window.UserNag = {
+window.Surveyor = {
   ticketPlacement: false,
-  ticketsNagged: [],
-  failedNags: [],
-  nag: function(e){
+  ticketsSurveyed: [],
+  failedSurveys: [],
+  survey: function(e){
     if(e.data) {
       // Single ticket
-      UserNag.nagSingle(e.data);
+      Surveyor.surveySingle(e.data);
     } else {
       // All tickets in "waiting" state
-      UserNag.nagAll();
+      Surveyor.surveyAll();
     }
   },
-  nagSingle: function(ticketId){
-    var card = UserNag.card;
-    UserNag.nagTicket(ticketId).then(function(){
-        Materialize.toast('Ticket nagged.', 3000);
-        UserNag.log(ticketId);
+  surveySingle: function(ticketId){
+    var card = Surveyor.card;
+    Surveyor.surveyTicket(ticketId).then(function(){
+        Materialize.toast('Ticket survey sent.', 3000);
+        Surveyor.log(ticketId);
     });
   },
-  nagAll: function(){
-    UserNag.nagPageOfTickets(1).then(function(){
-      Materialize.toast('' + UserNag.ticketsNagged.length + ' tickets successfully nagged.', 4500);
-      UserNag.log(false);
+  surveyAll: function(){
+    Surveyor.surveyPageOfTickets(1).then(function(){
+      Materialize.toast('Survey successfully sent for ' + Surveyor.ticketsSurveyed.length + ' tickets.', 4500);
+      Surveyor.log(false);
     });
   },
-  nagPageOfTickets: function(curPage){
-    var card = UserNag.card;
+  surveyPageOfTickets: function(curPage){
+    var card = Surveyor.card;
     var prom = card.services('helpdesk').request('tickets', {status: 'open', page: curPage, per_page: 100}).then(function(t){
       var promises = [];
       curPage = t['meta']['current_page'];
@@ -50,87 +50,87 @@ window.UserNag = {
       for(var i=0; i < ticketList.length; i++){
         var tick = ticketList[i];
         if(tick['status'] == 'waiting') {
-          promises.push(UserNag.nagTicket(tick['id']));
+          promises.push(Surveyor.surveyTicket(tick['id']));
         }
       }
       if(curPage < pageCount) {
-        promises.push(UserNag.nagPageOfTickets(curPage + 1));
+        promises.push(Surveyor.surveyPageOfTickets(curPage + 1));
       }
       return Promise.all(promises);
     });
     return prom;
   },
-  nagTicket: function(ticketId){
-    var card = UserNag.card;
-    if(!UserNag.nagText){
-      Materialize.toast('Unable to load nag text; please try again later.', 3000);
+  surveyTicket: function(ticketId){
+    var card = Surveyor.card;
+    if(!Surveyor.surveyText){
+      Materialize.toast('Unable to load survey text; please try again later.', 3000);
       return false;
     }
 
     return card.services('helpdesk').request('comment:create', ticketId, {
       public: true,
-      body: UserNag.nagText
+      body: Surveyor.surveyText
     }).then(function(d){
-      UserNag.ticketsNagged.push(ticketId);
+      Surveyor.ticketsSurveyed.push(ticketId);
     }, function(e){
-      UserNag.failedNags.push(ticketId);
-      Materialize.toast('Unable to send nag for ticket #' + ticketId + '.', 3000);
+      Surveyor.failedSurveys.push(ticketId);
+      Materialize.toast('Unable to send survey for ticket #' + ticketId + '.', 3000);
     });
   },
   log: function(specificTicket){
-    var goodNags = specificTicket ? specificTicket : UserNag.ticketsNagged;
-    $.post('/nag_history', {
-      site: UserNag.site,
-      stid: goodNags,
-      ftid: UserNag.failedNags,
-      me: UserNag.user,
+    var goodSurveys = specificTicket ? specificTicket : Surveyor.ticketsSurveyed;
+    $.post('/survey_history', {
+      site: Surveyor.site,
+      stid: goodSurveys,
+      ftid: Surveyor.failedSurveys,
+      me: Surveyor.user,
       ts: !!specificTicket
     }, function(){
-      UserNag.getNagHistory(specificTicket);
+      Surveyor.getSurveyHistory(specificTicket);
     });
-    UserNag.ticketsNagged = [];
-    UserNag.failedNags = [];
+    Surveyor.ticketsSurveyed = [];
+    Surveyor.failedSurveys = [];
     // On success of history post, add wave to history title, add entries to list, and wave the new entries too
   },
-  getNagHistory: function(ticketId){
-    var args = {site: UserNag.site};
+  getSurveyHistory: function(ticketId){
+    var args = {site: Surveyor.site};
     if(ticketId){
       args.ticket_id = ticketId;
     }
-    $.getJSON('/nag_history', args, UserNag.loadHistory);
+    $.getJSON('/survey_history', args, Surveyor.loadHistory);
   },
   loadHistory: function(data){
-    var $hist = $('.nag-history tbody');
+    var $hist = $('.survey-history tbody');
     $hist.empty();
     var senders = {};
     for(var i = 0; i < data.length; i++){
-      var user = data[i]['nagging_user_id'];
+      var user = data[i]['surveying_user_id'];
       senders[user] = true;
       var created_at = data[i]['created_at'];
       $('<tr><td>'+moment(created_at).format('lll')+
         '</td><td class="ticket-id">'+data[i]['ticket_id']+
-        '</td><td><i class="material-icons tooltipped" data-position="left" data-tooltip="'+(data[i]['successful'] ? 'Successful Nag">done' : 'Unable to send Nag">report_problem')+
+        '</td><td><i class="material-icons tooltipped" data-position="left" data-tooltip="'+(data[i]['successful'] ? 'Successful Survey">done' : 'Unable to send Survey">report_problem')+
         '</i></td><td class="user" data-user-id="'+user+'">'+user+
         '</td><td>'+data[i]['action_id']+
         '</td></tr>').appendTo($hist);
     }
     $hist.find('.tooltipped').tooltip({delay: 40});
-    UserNag.nameSenders($hist, senders);
+    Surveyor.nameSenders($hist, senders);
   },
-  getNagText: function(){
-    $.getJSON('/nag_text.json', {site: UserNag.site}, UserNag.loadNagText);
+  getSurveyText: function(){
+    $.getJSON('/survey_text.json', {site: Surveyor.site}, Surveyor.loadSurveyText);
   },
-  loadNagText: function(data){
+  loadSurveyText: function(data){
     var txt = data['text'];
     if(!txt){
-      Materialize.toast('Unable to load nag text; please try again later.', 3000);
+      Materialize.toast('Unable to load survey text; please try again later.', 3000);
       return;
     }
-    UserNag.nagText = txt;
-    $('#nag_text').val(txt);
+    Surveyor.surveyText = txt;
+    $('#survey_text').val(txt);
   },
   nameSenders: function($hist, senders){
-    var card = UserNag.card;
+    var card = Surveyor.card;
     for(var userId in senders) {
       var z = card.services('people').request('person', parseInt(userId)).then(function(user){
         $hist.find('td.user[data-user-id='+user.id+']').text(user.first_name + ' ' + user.last_name);
@@ -140,28 +140,28 @@ window.UserNag = {
 };
 $('document').ready(function() {
   var card = new SW.Card();
-  UserNag.card = card;
+  Surveyor.card = card;
   card.onActivate(function(envData) {
-    UserNag.env = envData;
+    Surveyor.env = envData;
     $('#auid').val(envData['app_host']['auid']);
-    UserNag.site = envData['app_host']['auid'];
-    UserNag.user = envData['user']['id'];
+    Surveyor.site = envData['app_host']['auid'];
+    Surveyor.user = envData['user']['id'];
 
-    UserNag.getNagText();
+    Surveyor.getSurveyText();
 
-    if(!UserNag.ticketPlacement) {
-      $('#site').val(UserNag.site);
-      // Only request all nags if we're not on a specific ticket
-      UserNag.getNagHistory(false);
-      $('#send_nags').on('click', window.UserNag.nag);
-      $('#nag_text_form').on('ajax:success', function(e, data, status, xhr) {
-        UserNag.loadNagText(data);
+    if(!Surveyor.ticketPlacement) {
+      $('#site').val(Surveyor.site);
+      // Only request all surveys if we're not on a specific ticket
+      Surveyor.getSurveyHistory(false);
+      $('#send_surveys').on('click', window.Surveyor.survey);
+      $('#survey_text_form').on('ajax:success', function(e, data, status, xhr) {
+        Surveyor.loadSurveyText(data);
       });
     }
   });
 
   card.services('helpdesk').on('showTicket', function(ticketId) {
-    UserNag.getNagHistory(ticketId);
-    $('#send_nag').on('click', ticketId, UserNag.nag);
+    Surveyor.getSurveyHistory(ticketId);
+    $('#send_survey').on('click', ticketId, Surveyor.survey);
   });
 });

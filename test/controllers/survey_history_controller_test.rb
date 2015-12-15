@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class NagHistoryTest < ActiveSupport::TestCase
+class SurveyHistoryControllerTest < ActionController::TestCase
   # test "the truth" do
   #   assert true
   # end

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class NagTextControllerTest < ActionController::TestCase
+class NoSurveyTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

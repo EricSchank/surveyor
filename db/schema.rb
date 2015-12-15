@@ -16,23 +16,23 @@ ActiveRecord::Schema.define(version: 20151120143237) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "nag_histories", force: :cascade do |t|
+  create_table "survey_histories", force: :cascade do |t|
     t.integer  "site_id",                         null: false
     t.string   "action_id",                       null: false
     t.integer  "ticket_id",                       null: false
     t.boolean  "ticket_specific", default: false
     t.boolean  "successful",      default: true
-    t.integer  "nagging_user_id"
+    t.integer  "surveying_user_id"
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
   end
 
-  add_index "nag_histories", ["site_id", "action_id"], name: "index_nag_histories_on_site_id_and_action_id", using: :btree
-  add_index "nag_histories", ["site_id", "nagging_user_id"], name: "index_nag_histories_on_site_id_and_nagging_user_id", using: :btree
-  add_index "nag_histories", ["site_id", "ticket_id"], name: "index_nag_histories_on_site_id_and_ticket_id", using: :btree
-  add_index "nag_histories", ["site_id"], name: "index_nag_histories_on_site_id", using: :btree
+  add_index "survey_histories", ["site_id", "action_id"], name: "index_survey_histories_on_site_id_and_action_id", using: :btree
+  add_index "survey_histories", ["site_id", "surveying_user_id"], name: "index_survey_histories_on_site_id_and_surveying_user_id", using: :btree
+  add_index "survey_histories", ["site_id", "ticket_id"], name: "index_survey_histories_on_site_id_and_ticket_id", using: :btree
+  add_index "survey_histories", ["site_id"], name: "index_survey_histories_on_site_id", using: :btree
 
-  create_table "no_nags", force: :cascade do |t|
+  create_table "no_surveys", force: :cascade do |t|
     t.integer  "site_id",    null: false
     t.integer  "author_id"
     t.integer  "ticket_id"
@@ -40,14 +40,14 @@ ActiveRecord::Schema.define(version: 20151120143237) do
     t.datetime "updated_at", null: false
   end
 
-  add_index "no_nags", ["site_id", "author_id"], name: "index_no_nags_on_site_id_and_author_id", using: :btree
-  add_index "no_nags", ["site_id", "ticket_id"], name: "index_no_nags_on_site_id_and_ticket_id", using: :btree
-  add_index "no_nags", ["site_id"], name: "index_no_nags_on_site_id", using: :btree
+  add_index "no_surveys", ["site_id", "author_id"], name: "index_no_surveys_on_site_id_and_author_id", using: :btree
+  add_index "no_surveys", ["site_id", "ticket_id"], name: "index_no_surveys_on_site_id_and_ticket_id", using: :btree
+  add_index "no_surveys", ["site_id"], name: "index_no_surveys_on_site_id", using: :btree
 
   create_table "site_configs", force: :cascade do |t|
     t.integer  "site_id",                                 null: false
-    t.string   "nag",        limit: 5000
-    t.integer  "max_nags",                default: 99999
+    t.string   "survey",        limit: 5000
+    t.integer  "max_surveys",                default: 99999
     t.integer  "frequency",               default: 0
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false

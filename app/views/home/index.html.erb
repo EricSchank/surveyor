@@ -1,26 +1,26 @@
 <div class="fullpage">
-  <h4>Nag All "Waiting on User" Tickets</h4>
+  <h4>Survey All "Closed" Tickets</h4>
   <p class="instructions">
-    Click below to send a gentle reminder to the users you're waiting on.
-    <i class="material-icons tooltipped tiny" data-delay="40" data-tooltip="We remind your users by adding a public comment to each ticket in the 'Waiting on user' state.">info_outline</i>
+    Click below to send a satisfaction survey for un-surveyed tickets closed in the last week.
+    <i class="material-icons tooltipped tiny" data-delay="40" data-tooltip="We survey your users by adding a public comment to each recently closed ticket, which links to our survey.">info_outline</i>
   </p>
-  <button id="send_nags" class="waves-effect waves-light btn">
-    <i class="material-icons right">email</i> Send Nags
+  <button id="send_surveys" class="waves-effect waves-light btn">
+    <i class="material-icons right">email</i> Send Surveys
   </button>
 
   <hr class="space-it"/>
-  <h4>User Nag Settings</h4>
+  <h4>Surveyor Settings</h4>
   <ul class="collapsible popout" data-collapsible="accordion">
-    <li class="nag-text">
-      <div class="collapsible-header"><i class="material-icons">chat</i>Nag Text</div>
+    <li class="survey-text">
+      <div class="collapsible-header"><i class="material-icons">chat</i>Survey Text</div>
       <div class="collapsible-body">
-        <p>Specify the reminder text we should use to nag your users.</p>
-        <%= form_tag nag_text_path, {method: :put, remote: true, id: "nag_text_form"} do %>
+        <p>Specify the text we should use to survey your users.</p>
+        <%= form_tag survey_text_path, {method: :put, remote: true, id: "survey_text_form"} do %>
           <%= hidden_field_tag :site, ''%>
           <p class="input-field">
             <i class="material-icons prefix">mode_edit</i>
-            <textarea id="nag_text" name="nag_text" class="materialize-textarea"><%= @nag_text %></textarea>
-            <label for="nag_text">Nag Message</label>
+            <textarea id="survey_text" name="survey_text" class="materialize-textarea"><%= @survey_text %></textarea>
+            <label for="survey_text">Survey Message</label>
           </p>
           <p class="card-action">
             <button id="change_text" class="btn waves-effect waves-light" type="submit" name="action">Submit
@@ -30,30 +30,26 @@
         <% end %>
       </div>
     </li>
-    <li class="nag-history">
-      <div class="collapsible-header"><i class="material-icons">done_all</i>Nag History</div>
+    <li class="survey-history">
+      <div class="collapsible-header"><i class="material-icons">done_all</i>Survey History</div>
       <div class="collapsible-body">
-        <%= render partial: 'home/nag_history' %>
+        <%= render partial: 'home/survey_history' %>
       </div>
     </li>
     <li>
-      <div class="collapsible-header"><i class="material-icons">portable_wifi_off</i>No Nag List</div>
-      <div class="collapsible-body"><p>These people or tickets won't be nagged.</p><p>Coming soon...</p></div>
-    </li>
-    <li>
-      <div class="collapsible-header"><i class="material-icons">pause_circle_outline</i>Auto-Close</div>
-      <div class="collapsible-body"><p>They <i>still</i> haven't responded? It must not be that important.  Let's close this after one last nag.</p><p>Coming soon...</p></div>
+      <div class="collapsible-header"><i class="material-icons">portable_wifi_off</i>No Survey List</div>
+      <div class="collapsible-body"><p>These people or tickets won't be surveyed.</p><p>Coming soon...</p></div>
     </li>
   </ul>
 
   <hr class="space-it"/>
   <div class="card teal lighten-3">
     <div class="card-content">
-      <span class="card-title">User Nag Feedback</span>
+      <span class="card-title">Surveyor Feedback</span>
       <p>Let us know what you like or don't like.  And please tell us what future features you most want.</p>
     </div>
     <div class="card-action">
-      <%= mail_to 'support@spiceworks.com', subject: 'User Nag App Feedback', class: 'white-text' do %>
+      <%= mail_to 'support@spiceworks.com', subject: 'Surveyor App Feedback', class: 'white-text' do %>
         <i class="material-icons">question_answer</i>Email Us
       <% end %>
       <a class="white-text" href="https://community.spiceworks.com/appcenter/app/extension_43"><i class="material-icons">grade</i>Write a Review</a>
@@ -62,4 +58,4 @@
 
 </div>
 
-<%= javascript_tag "UserNag.ticketPlacement = false;" %>
+<%= javascript_tag "Surveyor.ticketPlacement = false;" %>

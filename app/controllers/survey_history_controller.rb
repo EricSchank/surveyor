@@ -1,4 +1,4 @@
-class NagHistoryController < ApplicationController
+class SurveyHistoryController < ApplicationController
   before_filter :load_site
 
   def create
@@ -13,7 +13,7 @@ class NagHistoryController < ApplicationController
   end
 
   def index
-    ret = @site.nag_history.order(created_at: :desc, action_id: :desc, ticket_id: :asc)
+    ret = @site.survey_history.order(created_at: :desc, action_id: :desc, ticket_id: :asc)
     ret = ret.where(ticket_id: params[:ticket_id]) if params[:ticket_id]
     render json: ret
   end
@@ -22,11 +22,11 @@ class NagHistoryController < ApplicationController
 
   def log_history(ticket_id, success)
     Rails.logger.error "LOG #{ticket_id}: #{success}"
-    @history << @site.nag_history.create!(
+    @history << @site.survey_history.create!(
       ticket_id: ticket_id,
       action_id: @action_id,
       successful: success,
-      nagging_user_id: params[:me],
+      surveying_user_id: params[:me],
       ticket_specific: params[:ts]
     )
   end

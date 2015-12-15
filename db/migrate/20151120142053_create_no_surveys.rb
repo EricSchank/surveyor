@@ -1,6 +1,6 @@
-class CreateNoNags < ActiveRecord::Migration
+class CreateNoSurveys < ActiveRecord::Migration
   def change
-    create_table :no_nags do |t|
+    create_table :no_surveys do |t|
       t.integer :site_id, null: false
       t.integer :author_id
       t.integer :ticket_id
