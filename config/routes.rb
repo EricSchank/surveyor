@@ -8,9 +8,12 @@ Rails.application.routes.draw do
   get 'home' => 'home#index'
   # post 'home/survey' => 'home#survey'
   get 'ticket' => 'ticket#index'
+  get 'survey_responses' => 'survey_responses#index'
   # post 'ticket/survey' => 'ticket#survey'
   resources :survey_history, only: [:create, :index]
   resource :survey_text, only: [:update, :show]
+  resource :survey_question, only: [:update, :show]
+  resources :survey
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

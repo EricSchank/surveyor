@@ -14,7 +14,7 @@ $primary-color: color("blue", "lighten-2") !default;
   .instructions i {
     margin-left: 5px;
   }
-  .survey-text {
+  .survey-text, .survey-question {
     label {
       top: 3.25em;
       left: auto;
@@ -28,6 +28,18 @@ $primary-color: color("blue", "lighten-2") !default;
       border-left: 3px solid color('teal', 'lighten-1');
       padding: 10px 7px;
     }
+
+    input[type=text] {
+      margin-left: 43px;
+    }
+    input[type=text] ~ label {
+      position: relative;
+      margin-left: 43px;
+      top: -75px;
+    }
+  }
+  .survey-question textarea {
+    margin-bottom: 35px;
   }
   & > ul.collapsible.popout {
     padding: 0 7px;

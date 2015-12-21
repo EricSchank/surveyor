@@ -42,16 +42,15 @@ window.Surveyor = {
   },
   surveyPageOfTickets: function(curPage){
     var card = Surveyor.card;
-    var prom = card.services('helpdesk').request('tickets', {status: 'open', page: curPage, per_page: 100}).then(function(t){
+    var weekAgo = moment().subtract(7, 'days').format();
+    var prom = card.services('helpdesk').request('tickets', {status: 'closed', closed_at: {after: weekAgo}, page: curPage, per_page: 100}).then(function(t){
       var promises = [];
       curPage = t['meta']['current_page'];
       pageCount = t['meta']['page_count'];
       var ticketList = t['tickets'];
       for(var i=0; i < ticketList.length; i++){
         var tick = ticketList[i];
-        if(tick['status'] == 'waiting') {
-          promises.push(Surveyor.surveyTicket(tick['id']));
-        }
+        promises.push(Surveyor.surveyTicket(tick['id']));
       }
       if(curPage < pageCount) {
         promises.push(Surveyor.surveyPageOfTickets(curPage + 1));
@@ -69,12 +68,23 @@ window.Surveyor = {
 
     return card.services('helpdesk').request('comment:create', ticketId, {
       public: true,
-      body: Surveyor.surveyText
+      body: Surveyor.surveyText + '\r\nTicket survey: https://localhost:3000/survey?site='+Surveyor.site+'&ticket_id='+ticketId
     }).then(function(d){
       Surveyor.ticketsSurveyed.push(ticketId);
+      return true;
     }, function(e){
       Surveyor.failedSurveys.push(ticketId);
       Materialize.toast('Unable to send survey for ticket #' + ticketId + '.', 3000);
+      return false;
+    }).then(function(success){
+      if(success) {
+        return card.services('helpdesk').request('ticket:update', ticketId, {
+          status: 'closed'
+        }).catch(function(error){
+          Materialize.toast('Unable to re-close ticket #' + ticketId + '.', 3000);
+          return false;
+        })
+      }
     });
   },
   log: function(specificTicket){
@@ -129,6 +139,44 @@ window.Surveyor = {
     Surveyor.surveyText = txt;
     $('#survey_text').val(txt);
   },
+  getSurveyQuestion: function(){
+    $.getJSON('/survey_question.json', {site: Surveyor.site}, Surveyor.loadSurveyQuestion);
+  },
+  loadSurveyQuestion: function(data){
+    var question = data['question'];
+    if(!question){
+      Materialize.toast('Unable to load survey question; please try again later.', 3000);
+      return;
+    }
+    Surveyor.surveyQuestion = question;
+    $('#survey_question').val(question);
+
+    var answers = data['answers'];
+    if(!answers || answers.length < 4){
+      Materialize.toast('Unable to load survey answers; please try again later.', 3000);
+      return;
+    }
+    for(var i = 1; i < 5; i++) {
+        var ans = answers[i-1];
+        Surveyor['surveyAnswer'+i] = ans;
+        $('#survey_answer'+i).val(ans);
+    }
+  },
+  getSurveyResponses: function(ticketId){
+    $.getJSON('/survey_responses.json', {site: Surveyor.site, ticket_id: ticketId}, Surveyor.loadSurveyResponses);
+  },
+  loadSurveyResponses: function(data){
+    var $hist = $('.survey-responses tbody');
+    $hist.empty();
+    for(var i = 0; i < data.length; i++){
+      var created_at = data[i]['created_at'];
+      $('<tr><td>'+moment(created_at).format('lll')+
+        '</td><td class="ticket-id">'+data[i]['ticket_id']+
+        '</td><td>'+Surveyor['surveyAnswer' + data[i]['choice']]+
+        '</td><td>'+data[i]['comment']+
+        '</td></tr>').appendTo($hist);
+    }
+  },
   nameSenders: function($hist, senders){
     var card = Surveyor.card;
     for(var userId in senders) {
@@ -148,20 +196,26 @@ $('document').ready(function() {
     Surveyor.user = envData['user']['id'];
 
     Surveyor.getSurveyText();
+    Surveyor.getSurveyQuestion();
 
     if(!Surveyor.ticketPlacement) {
-      $('#site').val(Surveyor.site);
+      $('#site, input[name=site]').val(Surveyor.site);
       // Only request all surveys if we're not on a specific ticket
       Surveyor.getSurveyHistory(false);
       $('#send_surveys').on('click', window.Surveyor.survey);
       $('#survey_text_form').on('ajax:success', function(e, data, status, xhr) {
         Surveyor.loadSurveyText(data);
       });
+      $('#survey_question_form').on('ajax:success', function(e, data, status, xhr) {
+        Surveyor.loadSurveyQuestion(data);
+      });
+      Surveyor.getSurveyResponses();
     }
   });
 
   card.services('helpdesk').on('showTicket', function(ticketId) {
     Surveyor.getSurveyHistory(ticketId);
+    Surveyor.getSurveyResponses(ticketId);
     $('#send_survey').on('click', ticketId, Surveyor.survey);
   });
 });
