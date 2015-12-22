@@ -18,6 +18,7 @@ window.Surveyor = {
   ticketPlacement: false,
   ticketsSurveyed: [],
   failedSurveys: [],
+  alreadySurveyed: [],
   survey: function(e){
     if(e.data) {
       // Single ticket
@@ -66,6 +67,11 @@ window.Surveyor = {
       return false;
     }
 
+    if(Surveyor.alreadySurveyed.indexOf(ticketId) !== -1){
+      // already sent survey
+      return true;
+    }
+
     return card.services('helpdesk').request('comment:create', ticketId, {
       public: true,
       body: Surveyor.surveyText + '\r\nTicket survey: https://localhost:3000/survey?site='+Surveyor.site+'&ticket_id='+ticketId
@@ -80,7 +86,7 @@ window.Surveyor = {
       if(success) {
         return card.services('helpdesk').request('ticket:update', ticketId, {
           status: 'closed'
-        }).catch(function(error){
+        }).then(null, function(error){
           Materialize.toast('Unable to re-close ticket #' + ticketId + '.', 3000);
           return false;
         })
@@ -112,13 +118,16 @@ window.Surveyor = {
   loadHistory: function(data){
     var $hist = $('.survey-history tbody');
     $hist.empty();
+    Surveyor.alreadySurveyed = [];
     var senders = {};
     for(var i = 0; i < data.length; i++){
       var user = data[i]['surveying_user_id'];
       senders[user] = true;
+      var ticket = data[i]['ticket_id'];
+      Surveyor.alreadySurveyed.push(ticket);
       var created_at = data[i]['created_at'];
       $('<tr><td>'+moment(created_at).format('lll')+
-        '</td><td class="ticket-id">'+data[i]['ticket_id']+
+        '</td><td class="ticket-id">'+ticket+
         '</td><td><i class="material-icons tooltipped" data-position="left" data-tooltip="'+(data[i]['successful'] ? 'Successful Survey">done' : 'Unable to send Survey">report_problem')+
         '</i></td><td class="user" data-user-id="'+user+'">'+user+
         '</td><td>'+data[i]['action_id']+
@@ -168,14 +177,35 @@ window.Surveyor = {
   loadSurveyResponses: function(data){
     var $hist = $('.survey-responses tbody');
     $hist.empty();
+    var chart = Surveyor.setupChart();
+    var results = {};
     for(var i = 0; i < data.length; i++){
       var created_at = data[i]['created_at'];
+      var name = Surveyor['surveyAnswer' + data[i]['choice']];
       $('<tr><td>'+moment(created_at).format('lll')+
         '</td><td class="ticket-id">'+data[i]['ticket_id']+
-        '</td><td>'+Surveyor['surveyAnswer' + data[i]['choice']]+
+        '</td><td>'+name+
         '</td><td>'+data[i]['comment']+
         '</td></tr>').appendTo($hist);
+      results[name] = (results[name] || 0) + 1;
     }
+    Surveyor.drawChart(chart, results);
+  },
+  setupChart: function(){
+    var chart = new google.visualization.DataTable();
+    chart.addColumn('string', 'Response');
+    chart.addColumn('number', 'Results');
+    return chart;
+  },
+  drawChart: function(chart, results){
+    for(var r in results){
+      chart.addRow([r, results[r]]);
+    }
+    var pie = new google.visualization.PieChart($('.results-pie')[0]);
+    pie.draw(chart, {title: 'Survey Summary'});
+  },
+  drawResults: function(ticketId){
+    Surveyor.getSurveyResponses(ticketId);
   },
   nameSenders: function($hist, senders){
     var card = Surveyor.card;
@@ -209,13 +239,15 @@ $('document').ready(function() {
       $('#survey_question_form').on('ajax:success', function(e, data, status, xhr) {
         Surveyor.loadSurveyQuestion(data);
       });
-      Surveyor.getSurveyResponses();
+      google.charts.setOnLoadCallback(window.Surveyor.drawResults);
     }
   });
 
   card.services('helpdesk').on('showTicket', function(ticketId) {
     Surveyor.getSurveyHistory(ticketId);
-    Surveyor.getSurveyResponses(ticketId);
+    // Make sure ticketId gets passed
+    var boundDraw = Surveyor.drawResults.bind(undefined, ticketId);
+    google.charts.setOnLoadCallback(boundDraw);
     $('#send_survey').on('click', ticketId, Surveyor.survey);
   });
 });

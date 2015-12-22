@@ -17,4 +17,23 @@
   </div>
 </div>
 
+<hr class="space-it"/>
+
+<%= render partial: 'home/results'  %>
+
+<div class="survey-responses">
+  <table class="bordered highlight">
+    <thead>
+      <tr>
+        <td>Time</td>
+        <td class="ticket-id">Ticket</td>
+        <td>Response</td>
+        <td>Comment</td>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+
 <%= javascript_tag "Surveyor.ticketPlacement = true;" %>

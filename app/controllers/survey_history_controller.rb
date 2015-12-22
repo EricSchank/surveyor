@@ -6,7 +6,6 @@ class SurveyHistoryController < ApplicationController
     good = Array(params[:stid])
     bad = Array(params[:ftid])
     @action_id = "#{params[:me]}--#{Time.now.to_i}"
-    Rails.logger.error "CRT #{@aid}\n#{good.inspect}\n#{bad.inspect}"
     good.each{ |tick| log_history(tick.to_i, true) }
     bad.each{ |tick| log_history(tick.to_i, false) }
     render json: @history
@@ -21,7 +20,6 @@ class SurveyHistoryController < ApplicationController
   private
 
   def log_history(ticket_id, success)
-    Rails.logger.error "LOG #{ticket_id}: #{success}"
     @history << @site.survey_history.create!(
       ticket_id: ticket_id,
       action_id: @action_id,
