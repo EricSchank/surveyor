@@ -8,6 +8,7 @@
   <%= form_tag survey_index_path, {id: "survey_form"} do %>
     <%= hidden_field_tag :site, @site.auid %>
     <%= hidden_field_tag :ticket_id, @ticket_id %>
+    <%= hidden_field_tag :aid, @aid %>
     <p class="question">
       <%= sanitize(@question) %>
     </p>

@@ -30,9 +30,11 @@ window.Surveyor = {
   },
   surveySingle: function(ticketId){
     var card = Surveyor.card;
-    Surveyor.surveyTicket(ticketId).then(function(){
-        Materialize.toast('Ticket survey sent.', 3000);
-        Surveyor.log(ticketId);
+    card.services('helpdesk').request('ticket', ticketId).then(function(tick){
+      Surveyor.surveyTicket(ticketId, tick['assignee']['id']).then(function(){
+          Materialize.toast('Ticket survey sent.', 3000);
+          Surveyor.log(ticketId);
+      });
     });
   },
   surveyAll: function(){
@@ -51,7 +53,7 @@ window.Surveyor = {
       var ticketList = t['tickets'];
       for(var i=0; i < ticketList.length; i++){
         var tick = ticketList[i];
-        promises.push(Surveyor.surveyTicket(tick['id']));
+        promises.push(Surveyor.surveyTicket(tick['id'], tick['assignee']['id']));
       }
       if(curPage < pageCount) {
         promises.push(Surveyor.surveyPageOfTickets(curPage + 1));
@@ -60,7 +62,7 @@ window.Surveyor = {
     });
     return prom;
   },
-  surveyTicket: function(ticketId){
+  surveyTicket: function(ticketId, assigneeId){
     var card = Surveyor.card;
     if(!Surveyor.surveyText){
       Materialize.toast('Unable to load survey text; please try again later.', 3000);
@@ -72,9 +74,14 @@ window.Surveyor = {
       return true;
     }
 
+    var link = 'https://localhost:3000/survey?site='+Surveyor.site+'&ticket_id='+ticketId;
+    if(assigneeId){
+      link += '&aid='+assigneeId;
+    }
+
     return card.services('helpdesk').request('comment:create', ticketId, {
       public: true,
-      body: Surveyor.surveyText + '\r\nTicket survey: https://localhost:3000/survey?site='+Surveyor.site+'&ticket_id='+ticketId
+      body: Surveyor.surveyText + '\r\nTicket survey: ' + link
     }).then(function(d){
       Surveyor.ticketsSurveyed.push(ticketId);
       return true;
@@ -127,8 +134,8 @@ window.Surveyor = {
       Surveyor.alreadySurveyed.push(ticket);
       var created_at = data[i]['created_at'];
       $('<tr><td>'+moment(created_at).format('lll')+
-        '</td><td class="ticket-id">'+ticket+
-        '</td><td><i class="material-icons tooltipped" data-position="left" data-tooltip="'+(data[i]['successful'] ? 'Successful Survey">done' : 'Unable to send Survey">report_problem')+
+        '</td><td class="ticket-id"><a href="#" onclick="Surveyor.card.services(\'environment\').trigger(\'navigate\', \'/tickets/list/single_ticket/'+ticket+'\'); return false;">'+ticket+
+        '</a></td><td><i class="material-icons tooltipped" data-position="left" data-tooltip="'+(data[i]['successful'] ? 'Successful Survey">done' : 'Unable to send Survey">report_problem')+
         '</i></td><td class="user" data-user-id="'+user+'">'+user+
         '</td><td>'+data[i]['action_id']+
         '</td></tr>').appendTo($hist);
@@ -230,6 +237,7 @@ $('document').ready(function() {
 
     if(!Surveyor.ticketPlacement) {
       $('#site, input[name=site]').val(Surveyor.site);
+      card.services('environment').request('resize', {height: 2000})
       // Only request all surveys if we're not on a specific ticket
       Surveyor.getSurveyHistory(false);
       $('#send_surveys').on('click', window.Surveyor.survey);
