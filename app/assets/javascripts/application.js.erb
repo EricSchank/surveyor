@@ -217,7 +217,7 @@ window.Surveyor = {
   nameSenders: function($hist, senders){
     var card = Surveyor.card;
     for(var userId in senders) {
-      var z = card.services('people').request('person', parseInt(userId)).then(function(user){
+      var z = card.services('environment').request('user', parseInt(userId)).then(function(user){
         $hist.find('td.user[data-user-id='+user.id+']').text(user.first_name + ' ' + user.last_name);
       });
     }
