@@ -186,17 +186,28 @@ window.Surveyor = {
     $hist.empty();
     var chart = Surveyor.setupChart();
     var results = {};
+    var adminResults = {};
+    var choices = [];
     for(var i = 0; i < data.length; i++){
       var created_at = data[i]['created_at'];
-      var name = Surveyor['surveyAnswer' + data[i]['choice']];
+      var choice = data[i]['choice'];
+      var name = Surveyor['surveyAnswer' + choice];
+      var admin = data[i]['assignee_id'];
       $('<tr><td>'+moment(created_at).format('lll')+
         '</td><td class="ticket-id">'+data[i]['ticket_id']+
         '</td><td>'+name+
         '</td><td>'+data[i]['comment']+
         '</td></tr>').appendTo($hist);
       results[name] = (results[name] || 0) + 1;
+      adminResults[admin] = (adminResults[admin] || {});
+      adminResults[admin][choice] = (adminResults[admin][choice] || 0) + 1;
+      if(choices.indexOf(choice) == -1){
+        choices.push(choice);
+      }
     }
-    Surveyor.drawChart(chart, results);
+    Surveyor.drawChart(chart, results, $('.results-pie')[0]);
+    var adminChart = Surveyor.setupAdminChart(choices);
+    Surveyor.drawAdminChart(adminChart, adminResults, $('.admin-pie')[0], choices);
   },
   setupChart: function(){
     var chart = new google.visualization.DataTable();
@@ -204,23 +215,58 @@ window.Surveyor = {
     chart.addColumn('number', 'Results');
     return chart;
   },
-  drawChart: function(chart, results){
+  setupAdminChart: function(choices){
+    var chart = new google.visualization.DataTable();
+    chart.addColumn('string', 'Admin');
+    for(var c in choices){
+      chart.addColumn('number', Surveyor['surveyAnswer' + choices[c]]);
+    }
+    return chart;
+  },
+  drawChart: function(chart, results, domElement){
     for(var r in results){
       chart.addRow([r, results[r]]);
     }
-    var pie = new google.visualization.PieChart($('.results-pie')[0]);
+    var pie = new google.visualization.PieChart(domElement);
     pie.draw(chart, {title: 'Survey Summary'});
+  },
+  drawAdminChart: function(chart, results, domElement, choices){
+    for(var r in results){
+      var adminSummary = [];
+
+      for(var c = 0; c < choices.length; c++){
+        var cnt = results[r][choices[c]];
+        adminSummary[c] = (cnt || 0);
+      }
+      adminSummary.unshift(Surveyor.admins[r] || ('Admin ' + r));
+      chart.addRow(adminSummary);
+    }
+    var options = {
+      width: 450,
+      height: 300,
+      legend: { position: 'top', maxLines: 3 },
+      bar: { groupWidth: '75%' },
+      isStacked: true,
+      title: 'Admin Summary'
+    };
+
+    var pie = new google.visualization.BarChart(domElement);
+
+    pie.draw(chart, options);
   },
   drawResults: function(ticketId){
     Surveyor.getSurveyResponses(ticketId);
   },
   nameSenders: function($hist, senders){
     var card = Surveyor.card;
-    for(var userId in senders) {
-      var z = card.services('environment').request('user', parseInt(userId)).then(function(user){
+    Surveyor.admins = {};
+    var z = card.services('environment').request('users').then(function(users){
+      for(var userIdx in users.users){
+        var user = users.users[userIdx];
         $hist.find('td.user[data-user-id='+user.id+']').text(user.first_name + ' ' + user.last_name);
-      });
-    }
+        Surveyor.admins[user.id] = user.first_name + ' ' + user.last_name;
+      }
+    });
   }
 };
 $('document').ready(function() {
