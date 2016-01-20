@@ -120,9 +120,12 @@ window.Surveyor = {
     if(ticketId){
       args.ticket_id = ticketId;
     }
-    $.getJSON('/survey_history', args, Surveyor.loadHistory);
+
+    // Make sure ticketId gets passed
+    var boundLoadHistory = Surveyor.loadHistory.bind(undefined, ticketId?ticketId:undefined);
+    $.getJSON('/survey_history', args, boundLoadHistory);
   },
-  loadHistory: function(data){
+  loadHistory: function(ticketId, data){
     var $hist = $('.survey-history tbody');
     $hist.empty();
     Surveyor.alreadySurveyed = [];
@@ -142,6 +145,11 @@ window.Surveyor = {
     }
     $hist.find('.tooltipped').tooltip({delay: 40});
     Surveyor.nameSenders($hist, senders);
+
+    // Make sure ticketId gets passed
+    var boundDraw = Surveyor.drawResults.bind(undefined, ticketId?ticketId:undefined);
+    google.charts.setOnLoadCallback(boundDraw);
+
   },
   getSurveyText: function(){
     $.getJSON('/survey_text.json', {site: Surveyor.site}, Surveyor.loadSurveyText);
@@ -194,8 +202,8 @@ window.Surveyor = {
       var name = Surveyor['surveyAnswer' + choice];
       var admin = data[i]['assignee_id'];
       $('<tr><td>'+moment(created_at).format('lll')+
-        '</td><td class="ticket-id">'+data[i]['ticket_id']+
-        '</td><td>'+name+
+        '</td><td class="ticket-id"><a href="#" onclick="Surveyor.card.services(\'environment\').trigger(\'navigate\', \'/tickets/list/single_ticket/'+data[i]['ticket_id']+'\'); return false;">'+data[i]['ticket_id']+
+        '</a></td><td>'+name+
         '</td><td>'+data[i]['comment']+
         '</td></tr>').appendTo($hist);
       results[name] = (results[name] || 0) + 1;
@@ -293,15 +301,11 @@ $('document').ready(function() {
       $('#survey_question_form').on('ajax:success', function(e, data, status, xhr) {
         Surveyor.loadSurveyQuestion(data);
       });
-      google.charts.setOnLoadCallback(window.Surveyor.drawResults);
     }
   });
 
   card.services('helpdesk').on('showTicket', function(ticketId) {
     Surveyor.getSurveyHistory(ticketId);
-    // Make sure ticketId gets passed
-    var boundDraw = Surveyor.drawResults.bind(undefined, ticketId);
-    google.charts.setOnLoadCallback(boundDraw);
     $('#send_survey').on('click', ticketId, Surveyor.survey);
   });
 });
