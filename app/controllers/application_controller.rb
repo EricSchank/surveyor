@@ -18,7 +18,12 @@ class ApplicationController < ActionController::Base
   def load_text
     cfg = @site.site_config || @site.create_site_config(survey: DEFAULT_TEXT)
     @survey_text = cfg.survey
-    @survey = @site.survey_questions.first rescue @site.survey_questions.create!(question: DEFAULT_QUESTION, answer1: DEFAULT_ANSWERS[0], answer2: DEFAULT_ANSWERS[1], answer3: DEFAULT_ANSWERS[2], answer4: DEFAULT_ANSWERS[3])
+    @survey = @site.survey_questions.first_or_create!(
+                  question: DEFAULT_QUESTION,
+                  answer1: DEFAULT_ANSWERS[0],
+                  answer2: DEFAULT_ANSWERS[1],
+                  answer3: DEFAULT_ANSWERS[2],
+                  answer4: DEFAULT_ANSWERS[3])
     @survey_question = @survey.question rescue DEFAULT_QUESTION
     @survey_answer1 = @survey.answer1 rescue DEFAULT_ANSWERS[0]
     @survey_answer2 = @survey.answer2 rescue DEFAULT_ANSWERS[1]
