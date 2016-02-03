@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
     @site = Site.where(auid: site).first_or_create!
   end
 
-  DEFAULT_TEXT = "Just a quick reminder that we need a little more info from you on this issue.\r\nWhen you get a chance, please give us an update so we can continue to help with this issue.\r\nThanks!"
+  DEFAULT_TEXT = "We'd like to know how we're doing.\r\nWhen you get a chance, please click the link below to take a very short survey.\r\nThanks!"
   DEFAULT_QUESTION = "How was your experience working with the team on this ticket?\r\nPlease rate us below:"
   DEFAULT_ANSWERS = ["Excellent", "Good", "Below Average", "Unacceptable"]
   def load_text
