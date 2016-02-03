@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   DEFAULT_ANSWERS = ["Excellent", "Good", "Below Average", "Unacceptable"]
   def load_text
     @survey_text = @site.site_config.survey rescue DEFAULT_TEXT
-    @survey = @site.survey_questions.first rescue nil
+    @survey = @site.survey_questions.first rescue @site.survey_questions.create(question: DEFAULT_QUESTION, answer1: DEFAULT_ANSWERS[0], answer2: DEFAULT_ANSWERS[1], answer3: DEFAULT_ANSWERS[2], answer4: DEFAULT_ANSWERS[3])
     @survey_question = @survey.question rescue DEFAULT_QUESTION
     @survey_answer1 = @survey.answer1 rescue DEFAULT_ANSWERS[0]
     @survey_answer2 = @survey.answer2 rescue DEFAULT_ANSWERS[1]
