@@ -74,7 +74,7 @@ window.Surveyor = {
       return true;
     }
 
-    var link = 'https://localhost:3000/survey?site='+Surveyor.site+'&ticket_id='+ticketId;
+    var link = 'https://safe-reef-61473.herokuapp.com/survey?site='+Surveyor.site+'&ticket_id='+ticketId;
     if(assigneeId){
       link += '&aid='+assigneeId;
     }
@@ -267,14 +267,18 @@ window.Surveyor = {
   },
   nameSenders: function($hist, senders){
     var card = Surveyor.card;
-    Surveyor.admins = {};
+    var admins = {};
     var z = card.services('environment').request('users').then(function(users){
       for(var userIdx in users.users){
         var user = users.users[userIdx];
-        $hist.find('td.user[data-user-id='+user.id+']').text(user.first_name + ' ' + user.last_name);
-        Surveyor.admins[user.id] = user.first_name + ' ' + user.last_name;
+        var uname = user.first_name + ' ' + user.last_name;
+        $hist.find('td.user[data-user-id='+user.id+']').text(uname);
+        admins[user.id] = uname;
+        // we have a bit of a race condition here, so if the graph was already created -- go back and update the names
+        $('.admin-pie svg>g>g>g>text:contains(Admin ' + user.id + ')').text(uname);
       }
     });
+    Surveyor.admins = admins;
   }
 };
 $('document').ready(function() {
