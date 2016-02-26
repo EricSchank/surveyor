@@ -3,7 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 @import "materialize/components/color";
-$primary-color: color("blue", "lighten-2") !default;
+$primary-color: color("indigo", "darken-1") !default;
 @import 'materialize';
 
 .space-it {
@@ -85,4 +85,21 @@ $primary-color: color("blue", "lighten-2") !default;
 
 .graph-container {
   overflow: visible;
+}
+
+.ask-survey {
+  margin: 20px;
+  nav {
+    div {
+      background: linear-gradient(to bottom, #549FFA, #4667D3);
+    }
+    .page-title {
+      position: absolute;
+      left: 71px;
+    }
+  }
+
+  .brand-logo img {
+    height: 64px;
+  }
 }
