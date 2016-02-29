@@ -12,7 +12,7 @@
   <h4>Surveyor Settings</h4>
   <ul class="collapsible popout" data-collapsible="accordion">
     <li class="survey-text">
-      <div class="collapsible-header"><i class="material-icons">chat</i>Survey Request</div>
+      <div class="collapsible-header"><i class="material-icons">chat</i>Request message to users</div>
       <div class="collapsible-body">
         <p>Specify the text we should use to notify your users about the survey.  We'll append a link to the survey page at the end of your message.</p>
         <%= form_tag survey_text_path, {method: :put, remote: true, id: "survey_text_form"} do %>
@@ -23,7 +23,7 @@
             <label for="survey_text">Survey Message</label>
           </p>
           <p class="card-action">
-            <button id="change_text" class="btn waves-effect waves-light" type="submit" name="action">Submit
+            <button id="change_text" class="btn waves-effect waves-light" type="submit" name="action">Save
               <i class="material-icons right">send</i>
             </button>
           </p>
@@ -31,7 +31,7 @@
       </div>
     </li>
     <li class="survey-question">
-      <div class="collapsible-header"><i class="material-icons">list</i>Survey Question</div>
+      <div class="collapsible-header"><i class="material-icons">list</i>Questionaire</div>
       <div class="collapsible-body">
         <p>Specify the question and possible answers we ask your users in the survey.</p>
         <%= form_tag survey_question_path, {method: :put, remote: true, id: "survey_question_form"} do %>
@@ -50,7 +50,7 @@
             <label for="survey_answer4" class="active">Answer 4</label>
           </p>
           <p class="card-action">
-            <button id="change_question" class="btn waves-effect waves-light" type="submit" name="action">Submit
+            <button id="change_question" class="btn waves-effect waves-light" type="submit" name="action">Save
               <i class="material-icons right">send</i>
             </button>
           </p>
@@ -58,14 +58,14 @@
       </div>
     </li>
     <li class="survey-history">
-      <div class="collapsible-header"><i class="material-icons">done_all</i>Survey History</div>
+      <div class="collapsible-header"><i class="material-icons">done_all</i>Survey request history</div>
       <div class="collapsible-body">
         <%= render partial: 'home/survey_history' %>
       </div>
     </li>
     <li>
-      <div class="collapsible-header"><i class="material-icons">portable_wifi_off</i>No Survey List</div>
-      <div class="collapsible-body"><p>These people or tickets won't be surveyed.</p><p>Coming soon...</p></div>
+      <div class="collapsible-header"><i class="material-icons">portable_wifi_off</i>"Do not survey" list</div>
+      <div class="collapsible-body"><p>FEATURE COMING SOON.<br/>These people or tickets won't be surveyed.</p></div>
     </li>
   </ul>
 
