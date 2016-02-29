@@ -14,15 +14,13 @@
     <li class="survey-text">
       <div class="collapsible-header"><i class="material-icons">chat</i>Survey Request</div>
       <div class="collapsible-body">
-        <p>Specify the text we should use to tell your users about the survey.</p>
+        <p>Specify the text we should use to notify your users about the survey.  We'll append a link to the survey page at the end of your message.</p>
         <%= form_tag survey_text_path, {method: :put, remote: true, id: "survey_text_form"} do %>
           <%= hidden_field_tag :site, ''%>
           <p class="input-field">
             <i class="material-icons prefix">mode_edit</i>
             <textarea id="survey_text" name="survey_text" class="materialize-textarea"><%= @survey_text %></textarea>
             <label for="survey_text">Survey Message</label>
-            <br>
-            Note: We'll append a link to the survey page at the end of your message.
           </p>
           <p class="card-action">
             <button id="change_text" class="btn waves-effect waves-light" type="submit" name="action">Submit
