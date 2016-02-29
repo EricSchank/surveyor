@@ -3,7 +3,8 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 @import "materialize/components/color";
-$primary-color: color("indigo", "darken-1") !default;
+$primary-color: color("blue", "darken-2") !default;
+$secondary-color: color("blue", "darken-3") !default;
 @import 'materialize';
 
 .space-it {
@@ -25,7 +26,7 @@ $primary-color: color("indigo", "darken-1") !default;
     }
 
     textarea {
-      border-left: 3px solid color('teal', 'lighten-1');
+      border-left: 3px solid $secondary-color;
       padding: 10px 7px;
     }
 
@@ -74,7 +75,7 @@ $primary-color: color("indigo", "darken-1") !default;
 }
 
 .results-pie, .admin-pie {
-  width: 450px;
+  width: 49%;
   height: 300px;
   float: left;
 }
