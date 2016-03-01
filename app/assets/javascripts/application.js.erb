@@ -286,6 +286,13 @@ window.Surveyor = {
       }
     });
     Surveyor.admins = admins;
+  },
+  handleFormSubmits: function(){
+    $('#survey_text_form, #survey_question_form').on('ajax:success', function(){
+      Materialize.toast('Saved.', 1000);
+    }).on('ajax:error', function(){
+      Materialize.toast('Error saving, please try again in a few minutes.', 3000);
+    });
   }
 };
 $('document').ready(function() {
@@ -299,6 +306,7 @@ $('document').ready(function() {
 
     Surveyor.getSurveyText();
     Surveyor.getSurveyQuestion();
+    Surveyor.handleFormSubmits();
 
     if(!Surveyor.ticketPlacement) {
       $('#site, input[name=site]').val(Surveyor.site);
