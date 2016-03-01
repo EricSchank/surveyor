@@ -16,32 +16,22 @@ $secondary-color: color("blue", "darken-3") !default;
     margin-left: 5px;
   }
   .survey-text, .survey-question {
-    label {
-      top: 3.25em;
-      left: auto;
-    }
-    textarea.materialize-textarea:focus:not([readonly]) ~ label {
-      top: 2.5em;
-      font-size: 1rem;
-    }
 
     textarea {
       border-left: 3px solid $secondary-color;
-      padding: 10px 7px;
+      padding-left: 7px;
     }
 
-    input[type=text] {
-      margin-left: 43px;
+    textarea + label {
+      top: 0.6em;
     }
-    input[type=text] ~ label {
-      position: relative;
-      margin-left: 43px;
-      top: -75px;
+
+    p.input-field.s6 {
+      margin-left: 3em;
     }
+
   }
-  .survey-question textarea {
-    margin-bottom: 35px;
-  }
+
   & > ul.collapsible.popout {
     padding: 0 7px;
   }
@@ -103,4 +93,17 @@ $secondary-color: color("blue", "darken-3") !default;
   .brand-logo img {
     height: 64px;
   }
+  p.input-field.s12 {
+    margin-top: 35px;
+  }
+  textarea {
+    border-left: 3px solid $secondary-color;
+    padding-left: 7px;
+  }
+
+  textarea + label {
+    top: 0.6em;
+    padding-left: 7px;
+  }
+
 }
