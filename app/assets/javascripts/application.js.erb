@@ -195,6 +195,10 @@ window.Surveyor = {
   loadSurveyResponses: function(data){
     var $hist = $('.survey-responses tbody');
     $hist.empty();
+    if(data.length === 0){
+      $hist.append('<tr><td colspan="4">No Survey Responses</td></tr>');
+      return;
+    }
     var chart = Surveyor.setupChart();
     var results = {};
     var adminResults = {};
@@ -239,7 +243,7 @@ window.Surveyor = {
       chart.addRow([r, results[r]]);
     }
     var pie = new google.visualization.PieChart(domElement);
-    pie.draw(chart, {title: 'Survey Summary'});
+    pie.draw(chart, {title: 'Survey Summary', width: 450, height: 300});
   },
   drawAdminChart: function(chart, results, domElement, choices){
     for(var r in results){
