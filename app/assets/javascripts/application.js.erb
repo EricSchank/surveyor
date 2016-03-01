@@ -130,6 +130,9 @@ window.Surveyor = {
     $hist.empty();
     Surveyor.alreadySurveyed = [];
     var senders = {};
+    if(data.length === 0){
+      $('<tr><td colspan="5">No Surveys Sent</td></tr>').appendTo($hist);
+    }
     for(var i = 0; i < data.length; i++){
       var user = data[i]['surveying_user_id'];
       senders[user] = true;
