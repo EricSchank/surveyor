@@ -207,16 +207,21 @@ window.Surveyor = {
       var created_at = data[i]['created_at'];
       var choice = data[i]['choice'];
       var name = Surveyor['surveyAnswer' + choice];
+      if(name == undefined) {
+        name = 'N/A';
+      }
       var admin = data[i]['assignee_id'];
       $('<tr><td>'+moment(created_at).format('lll')+
         '</td><td class="ticket-id"><a href="#" onclick="Surveyor.card.services(\'environment\').trigger(\'navigate\', \'/tickets/list/single_ticket/'+data[i]['ticket_id']+'\'); return false;">'+data[i]['ticket_id']+
         '</a></td><td>'+name+
         '</td><td>'+data[i]['comment']+
         '</td></tr>').appendTo($hist);
-      results[name] = (results[name] || 0) + 1;
       adminResults[admin] = (adminResults[admin] || {});
-      adminResults[admin][choice] = (adminResults[admin][choice] || 0) + 1;
-      if(choices.indexOf(choice) == -1){
+      if(name !== 'N/A') {
+        results[name] = (results[name] || 0) + 1;
+        adminResults[admin][choice] = (adminResults[admin][choice] || 0) + 1;
+      }
+      if(choices.indexOf(choice) == -1 && choice != undefined && choice != null){
         choices.push(choice);
       }
     }
