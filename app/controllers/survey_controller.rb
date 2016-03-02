@@ -13,4 +13,12 @@ class SurveyController < ApplicationController
     assignee_id = params[:aid]
     r = @survey.survey_responses.create!(ticket_id: @ticket_id, assignee_id: assignee_id, choice: params[:answer], comment: params[:comment])
   end
+
+  def reset_account
+    if @site.destroy!
+      head(:ok) and return
+    else
+      head(:internal_server_error) and return
+    end
+  end
 end

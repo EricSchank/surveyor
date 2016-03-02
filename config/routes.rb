@@ -13,7 +13,11 @@ Rails.application.routes.draw do
   resources :survey_history, only: [:create, :index]
   resource :survey_text, only: [:update, :show]
   resource :survey_question, only: [:update, :show]
-  resources :survey
+  resources :survey, only:[:create, :index] do
+    collection do
+      put 'reset_account'
+    end
+  end
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

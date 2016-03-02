@@ -89,6 +89,32 @@
       <div class="collapsible-header"><i class="material-icons">portable_wifi_off</i>"Do not survey" list</div>
       <div class="collapsible-body"><p>FEATURE COMING SOON.<br/>These people or tickets won't be surveyed.</p></div>
     </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">https</i>Reset Account</div>
+      <div class="collapsible-body">
+        <p>This will remove all the data from our system (questions, replies, stats, etc.) and restart you with a fresh account. </p>
+        <%= form_tag reset_account_survey_index_path, {method: :put, remote: true, id: "reset_account_form"} do %>
+          <%= hidden_field_tag :site, ''%>
+          <div class="row">
+            <p class="card-action col s6">
+              <button data-target="confirm_modal" class="btn waves-effect waves-light modal-trigger" >Reset Account
+                <i class="material-icons right">loop</i>
+              </button>
+              <div id="confirm_modal" class="modal">
+                <div class="modal-content">
+                  <h4><i class="material-icons left">loop</i> Reset Account</h4>
+                  <p class="">Are you sure you want to reset your account?<br>This will remove all your data and <strong>cannot be undone.</strong></p>
+                </div>
+                <div class="modal-footer blue darken-4">
+                  <a href="#!" id="reset_account" class="white-text modal-action modal-close waves-effect waves-green btn-flat">Reset</a>
+                  <a href="#!" class="white-text modal-close waves-effect waves-green btn-flat">Cancel</a>
+                </div>
+              </div>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </li>
   </ul>
 
   <hr class="space-it"/>
@@ -125,4 +151,20 @@
 
 </div>
 
-<%= javascript_tag "Surveyor.ticketPlacement = false;" %>
+<script type="text/javascript">
+  Surveyor.ticketPlacement = false;
+  $('document').ready(function(){
+    $('.modal-trigger').leanModal();
+    $('#reset_account').on('click', function(){
+      $('#reset_account_form').submit();
+    });
+    $('#reset_account_form').on('ajax:success', function(){
+      Materialize.toast('Account successfully reset.', 2000);
+      setTimeout(function(){
+        window.location.reload(true);
+      }, 2000);
+    }).on('ajax:error', function(){
+      Materialize.toast('Error resetting, please try again in a few minutes.', 3000);
+    });
+  });
+</script>
