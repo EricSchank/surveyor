@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   after_filter :allow_iframe
+  before_filter :set_p3p
 
   protected
 
@@ -33,6 +34,10 @@ class ApplicationController < ActionController::Base
 
   def allow_iframe
     response.headers.except! 'X-Frame-Options'
+  end
+
+  def set_p3p
+    headers['P3P'] = 'CP="ALL DSP COR CURa ADMa DEVa OUR IND COM NAV"'
   end
 
 end
