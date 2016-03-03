@@ -9,9 +9,10 @@ class SurveyController < ApplicationController
   end
 
   def create
-    @ticket_id = params[:ticket_id]
-    assignee_id = params[:aid]
-    r = @survey.survey_responses.create!(ticket_id: @ticket_id, assignee_id: assignee_id, choice: params[:answer], comment: params[:comment])
+    p = survey_params
+    @ticket_id = p[:ticket_id]
+    assignee_id = p[:aid]
+    r = @survey.survey_responses.create!(ticket_id: @ticket_id, assignee_id: assignee_id, choice: p[:answer], comment: p[:comment])
   end
 
   def reset_account
@@ -20,5 +21,10 @@ class SurveyController < ApplicationController
     else
       head(:internal_server_error) and return
     end
+  end
+
+  private
+  def survey_params
+    params.permit(:ticket_id, :aid, :answer, :comment)
   end
 end

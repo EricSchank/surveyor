@@ -211,11 +211,16 @@ window.Surveyor = {
         name = 'N/A';
       }
       var admin = data[i]['assignee_id'];
-      $('<tr><td>'+moment(created_at).format('lll')+
+      var comment = data[i]['comment'];
+      var expander = '';
+      if(comment.length > 200){
+        expander = '<a href="#" onclick="$(\'.response'+i+' .comment div\').addClass(\'expand\'); $(\'.response'+i+' .comment > a\').hide(); return false;">more</a>';
+      }
+      $('<tr class="response'+i+'"><td>'+moment(created_at).format('lll')+
         '</td><td class="ticket-id"><a href="#" onclick="Surveyor.card.services(\'environment\').trigger(\'navigate\', \'/tickets/list/single_ticket/'+data[i]['ticket_id']+'\'); return false;">'+data[i]['ticket_id']+
         '</a></td><td>'+name+
-        '</td><td>'+data[i]['comment']+
-        '</td></tr>').appendTo($hist);
+        '</td><td class="comment"><div>'+comment+
+        '</div>'+expander+'</td></tr>').appendTo($hist);
       adminResults[admin] = (adminResults[admin] || {});
       if(name !== 'N/A') {
         results[name] = (results[name] || 0) + 1;
