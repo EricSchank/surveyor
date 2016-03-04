@@ -31,7 +31,7 @@ window.Surveyor = {
   surveySingle: function(ticketId){
     var card = Surveyor.card;
     card.services('helpdesk').request('ticket', ticketId).then(function(tick){
-      Surveyor.surveyTicket(ticketId, tick['assignee']['id']).then(function(){
+      Surveyor.surveyTicket(ticketId, tick['assignee']['id'], true).then(function(){
           Materialize.toast('Ticket survey sent.', 3000);
           Surveyor.log(ticketId);
       });
@@ -53,7 +53,7 @@ window.Surveyor = {
       var ticketList = t['tickets'];
       for(var i=0; i < ticketList.length; i++){
         var tick = ticketList[i];
-        promises.push(Surveyor.surveyTicket(tick['id'], tick['assignee']['id']));
+        promises.push(Surveyor.surveyTicket(tick['id'], tick['assignee']['id'], false));
       }
       if(curPage < pageCount) {
         promises.push(Surveyor.surveyPageOfTickets(curPage + 1));
@@ -62,7 +62,7 @@ window.Surveyor = {
     });
     return prom;
   },
-  surveyTicket: function(ticketId, assigneeId){
+  surveyTicket: function(ticketId, assigneeId, single){
     var card = Surveyor.card;
     if(!Surveyor.surveyText){
       Materialize.toast('Unable to load survey text; please try again later.', 3000);
@@ -71,6 +71,9 @@ window.Surveyor = {
 
     if(Surveyor.alreadySurveyed.indexOf(ticketId) !== -1){
       // already sent survey
+      if(single){
+        Materialize.toast('This ticket was already surveyed.', 3000);
+      }
       return true;
     }
 
