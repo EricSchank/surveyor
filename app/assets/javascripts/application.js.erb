@@ -77,14 +77,14 @@ window.Surveyor = {
       return true;
     }
 
-    var link = 'https://safe-reef-61473.herokuapp.com/survey?site='+Surveyor.site+'&ticket_id='+ticketId;
+    var link = 'https://surveyor-1.herokuapp.com/survey?site='+Surveyor.site+'&ticket_id='+ticketId;
     if(assigneeId){
       link += '&aid='+assigneeId;
     }
 
     return card.services('helpdesk').request('comment:create', ticketId, {
       public: true,
-      body: Surveyor.surveyText + '\r\nTicket survey: ' + link
+      body: Surveyor.surveyText + '\r\nPlease take the survey by clicking here: ' + link
     }).then(function(d){
       Surveyor.ticketsSurveyed.push(ticketId);
       return true;
