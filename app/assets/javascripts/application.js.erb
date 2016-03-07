@@ -339,5 +339,10 @@ $('document').ready(function() {
   card.services('helpdesk').on('showTicket', function(ticketId) {
     Surveyor.getSurveyHistory(ticketId);
     $('#send_survey').on('click', ticketId, Surveyor.survey);
+    card.services('helpdesk').request('ticket', ticketId).then(function(tick) {
+      if(tick.status !== "closed") {
+        $('#send_survey span').text('Close ticket & send survey')
+      }
+    });
   });
 });
