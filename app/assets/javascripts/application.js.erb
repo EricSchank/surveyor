@@ -295,7 +295,10 @@ window.Surveyor = {
         $hist.find('td.user[data-user-id='+user.id+']').text(uname);
         admins[user.id] = uname;
         // we have a bit of a race condition here, so if the graph was already created -- go back and update the names
-        $('.admin-pie svg>g>g>g>text:contains(Admin ' + user.id + ')').text(uname);
+        $('.admin-pie svg>g>g>g>text:contains(Admin ' + user.id + ')').filter(function(){
+          // Note: need filter, or for Admin "1", we'll match "Admin 1" and "Admin 10" and "Admin 123" ... not desired
+          return ($(this).text() === 'Admin ' + user.id);
+        }).text(uname);
       }
     });
     Surveyor.admins = admins;
